@@ -1021,7 +1021,7 @@ class _RecordsPageState extends State<RecordsPage> {
 
 //analysis page starts
 class AnalysisPage extends StatefulWidget {
-  const AnalysisPage({Key? key}) : super(key: key);
+  const AnalysisPage({super.key});
 
   @override
   _AnalysisPageState createState() => _AnalysisPageState();
@@ -1443,7 +1443,7 @@ class PieChartPainter extends CustomPainter {
 
 //budgets
 class BudgetsPage extends StatefulWidget {
-  const BudgetsPage({Key? key}) : super(key: key);
+  const BudgetsPage({super.key});
 
   @override
   _BudgetsPageState createState() => _BudgetsPageState();
@@ -1895,7 +1895,7 @@ class _AccountsPageState extends State<AccountsPage>
 
   Future<void> _addOrEditAccount(
       {String? docId, Map<String, dynamic>? accountData}) async {
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
     String accountName = accountData != null ? accountData['name'] ?? '' : '';
     String accountType = accountData != null
         ? accountData['type'] ?? ''
@@ -1910,7 +1910,7 @@ class _AccountsPageState extends State<AccountsPage>
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           title: Text(docId == null ? 'Add Account' : 'Edit Account'),
           content: Form(
-            key: _formKey,
+            key: formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -1977,8 +1977,8 @@ class _AccountsPageState extends State<AccountsPage>
             ),
             ElevatedButton(
               onPressed: () async {
-                if (_formKey.currentState?.validate() ?? false) {
-                  _formKey.currentState?.save();
+                if (formKey.currentState?.validate() ?? false) {
+                  formKey.currentState?.save();
                   final newAccountData = {
                     'userEmail': userEmail,
                     'name': accountName,

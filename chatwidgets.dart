@@ -10,12 +10,12 @@ class EnhancedMessageInput extends StatefulWidget {
   final String userAddress;
 
   const EnhancedMessageInput({
-    Key? key,
+    super.key,
     required this.onSend,
     required this.currentLocation,
     required this.userEmail,
     required this.userAddress,
-  }) : super(key: key);
+  });
 
   @override
   _EnhancedMessageInputState createState() => _EnhancedMessageInputState();
@@ -536,12 +536,12 @@ class FeatureMessageCard extends StatelessWidget {
   final bool isCurrentUser;
 
   const FeatureMessageCard({
-    Key? key,
+    super.key,
     required this.messageData,
     required this.userEmail,
     required this.onInterested,
     required this.isCurrentUser,
-  }) : super(key: key);
+  });
 
   bool _hasUserShownInterest() {
     final List interested = messageData['interested'] ?? [];
@@ -909,7 +909,7 @@ class FeatureMessageCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
+              SizedBox(
                 width: 24,
                 child: Column(
                   children: [

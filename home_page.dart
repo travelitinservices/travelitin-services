@@ -70,7 +70,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
-  int _currentTab = 0;
+  final int _currentTab = 0;
 
   late final AnimationController _controller =
       AnimationController(vsync: this, duration: const Duration(seconds: 3))
@@ -265,6 +265,8 @@ class _HomeScreenState extends State<HomeScreen>
 }
 
 class GreetingWithImageSlider extends StatefulWidget {
+  const GreetingWithImageSlider({super.key});
+
   @override
   _GreetingWithImageSliderState createState() =>
       _GreetingWithImageSliderState();
@@ -363,8 +365,7 @@ class _GreetingWithImageSliderState extends State<GreetingWithImageSlider> {
 class AlertDetailsPage extends StatelessWidget {
   final String alertMessage;
 
-  const AlertDetailsPage({Key? key, required this.alertMessage})
-      : super(key: key);
+  const AlertDetailsPage({super.key, required this.alertMessage});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -430,6 +431,8 @@ class AlertDetailsPage extends StatelessWidget {
 }
 
 class LocationAlertsWeather extends StatefulWidget {
+  const LocationAlertsWeather({super.key});
+
   @override
   _LocationAlertsWeatherState createState() => _LocationAlertsWeatherState();
 }
@@ -667,7 +670,7 @@ class _LocationAlertsWeatherState extends State<LocationAlertsWeather>
                                         fontSize: 24,
                                         fontWeight: FontWeight.bold));
                                 return textSize.width > constraints.maxWidth
-                                    ? Container(
+                                    ? SizedBox(
                                         height: 30,
                                         child: Marquee(
                                           text: city + district + state,
@@ -702,7 +705,7 @@ class _LocationAlertsWeatherState extends State<LocationAlertsWeather>
                                 final textSize = _textSize(weatherDescription,
                                     TextStyle(fontSize: 20));
                                 return textSize.width > constraints.maxWidth
-                                    ? Container(
+                                    ? SizedBox(
                                         height: 30,
                                         child: Marquee(
                                           text: weatherDescription,
@@ -920,7 +923,7 @@ class _LocationAlertsWeatherState extends State<LocationAlertsWeather>
                                           fontSize: 24,
                                           fontWeight: FontWeight.bold));
                                   return textSize.width > constraints.maxWidth
-                                      ? Container(
+                                      ? SizedBox(
                                           height: 30,
                                           child: Marquee(
                                             text: city + district + state,
@@ -955,7 +958,7 @@ class _LocationAlertsWeatherState extends State<LocationAlertsWeather>
                                   final textSize = _textSize(weatherDescription,
                                       TextStyle(fontSize: 20));
                                   return textSize.width > constraints.maxWidth
-                                      ? Container(
+                                      ? SizedBox(
                                           height: 30,
                                           child: Marquee(
                                             text: weatherDescription,
@@ -1426,6 +1429,8 @@ class DestinationCarousel extends StatelessWidget {
     }
   ];
 
+  const DestinationCarousel({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -1540,7 +1545,7 @@ class DestinationCarousel extends StatelessWidget {
 class TravelPlannerPage extends StatefulWidget {
   final String cityName;
 
-  const TravelPlannerPage({Key? key, required this.cityName}) : super(key: key);
+  const TravelPlannerPage({super.key, required this.cityName});
 
   @override
   _TravelPlannerPageState createState() => _TravelPlannerPageState();
@@ -1663,6 +1668,8 @@ class _TravelPlannerPageState extends State<TravelPlannerPage>
 }
 
 class Footer extends StatelessWidget {
+  const Footer({super.key});
+
   void _sendEmail() async {
     const email = 'mailto:asafetyguide@gmail.com';
     if (await canLaunch(email)) {

@@ -45,7 +45,7 @@ class _MapExplorerScreenState extends State<MapExplorerScreen> {
   final TextEditingController _searchController = TextEditingController();
   final MapController _mapController = MapController();
    double _currentZoom = 10.0; // Initialize with your starting zoom level
-   LatLng _currentCenter = LatLng(51.5, -0.09); // Initial center position
+   final LatLng _currentCenter = LatLng(51.5, -0.09); // Initial center position
   final Random _random = Random();
 
   static const String _apiKey = '492cdff6b79e46adb5938059495eacc9';
@@ -61,12 +61,12 @@ class _MapExplorerScreenState extends State<MapExplorerScreen> {
   String _country = '';
   String _currency = '';
   String _timezone = '';
-  String _roadInfo = '';
-  String _flag = '';
+  final String _roadInfo = '';
+  final String _flag = '';
   String _sunrise = '';
   String _sunset = '';
   String _dms = '';
-  String _fips = '';
+  final String _fips = '';
   String _mgrs = '';
   String _maidenhead = '';
   String _geohash = '';
@@ -180,7 +180,7 @@ class _MapExplorerScreenState extends State<MapExplorerScreen> {
         ),
       );
 
-      _locationName = '$name';
+      _locationName = name;
       _locationCoordinates =
           ' ${lat.toStringAsFixed(6)}°, ${lng.toStringAsFixed(6)}°';
       _country = 'Country: ${_getNestedValue(details, [
@@ -581,9 +581,9 @@ class _MapExplorerScreenState extends State<MapExplorerScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Flexible(child: Text('$_country', style: _infoTextStyle())),
-          Flexible(child: Text('$_currency', style: _infoTextStyle())),
-          Flexible(child: Text('$_timezone', style: _infoTextStyle())),
+          Flexible(child: Text(_country, style: _infoTextStyle())),
+          Flexible(child: Text(_currency, style: _infoTextStyle())),
+          Flexible(child: Text(_timezone, style: _infoTextStyle())),
         ],
       ),
     );
@@ -711,7 +711,7 @@ class _MapExplorerScreenState extends State<MapExplorerScreen> {
           ),
         ),
         content: Text(
-          "$_country ! " + _travelAlert,
+          "$_country ! $_travelAlert",
           style: TextStyle(
             color: const Color.fromARGB(255, 0, 0, 0),
             fontSize: 16,

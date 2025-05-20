@@ -47,6 +47,8 @@ void main() async {
 }
 
 class ScamReportPage extends StatefulWidget {
+  const ScamReportPage({super.key});
+
   @override
   _ScamReportPageState createState() => _ScamReportPageState();
 }
@@ -427,6 +429,14 @@ class _ScamReportPageState extends State<ScamReportPage> {
                                         child: ElevatedButton(
                                           onPressed:
                                               isSubmitting ? null : reportScam,
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                Colors.white.withOpacity(0.9),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                          ),
                                           child: Padding(
                                             padding: EdgeInsets.symmetric(
                                                 vertical: 16),
@@ -448,14 +458,6 @@ class _ScamReportPageState extends State<ScamReportPage> {
                                                     style:
                                                         TextStyle(fontSize: 16),
                                                   ),
-                                          ),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                Colors.white.withOpacity(0.9),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
                                           ),
                                         ),
                                       ),

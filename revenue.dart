@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:thingqbator/core/theme/app_theme.dart';
 
 class RevenuePage extends StatefulWidget {
   const RevenuePage({super.key});
@@ -17,8 +18,8 @@ class _RevenuePageState extends State<RevenuePage>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 5), // Duration for full animation loop
-    )..repeat(); // Infinite loop
+      duration: const Duration(seconds: 5),
+    )..repeat();
   }
 
   @override
@@ -26,7 +27,8 @@ class _RevenuePageState extends State<RevenuePage>
     _controller.dispose();
     super.dispose();
   }
-@override
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
@@ -35,8 +37,7 @@ class _RevenuePageState extends State<RevenuePage>
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          int columns = 1; // Default for small screens
-
+          int columns = 1;
           if (constraints.maxWidth >= 1200) {
             columns = 4;
           } else if (constraints.maxWidth >= 900) {
@@ -45,22 +46,16 @@ class _RevenuePageState extends State<RevenuePage>
             columns = 2;
           }
 
-          double cardWidth =
-              constraints.maxWidth / columns - 40; // Adjust width
+          double cardWidth = constraints.maxWidth / columns - 40;
 
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SingleChildScrollView(
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Column(
-                mainAxisAlignment:
-                    MainAxisAlignment.center, // Center vertically
-                crossAxisAlignment:
-                    CrossAxisAlignment.center, // Center horizontally
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(
-                      height: 56), // Add some spacing between appbar and cards
-
-                  // Centering the Wrap widget inside the Column
+                  const SizedBox(height: 16),
                   Center(
                     child: Wrap(
                       spacing: 34.0,
@@ -133,31 +128,29 @@ class _RevenuePageState extends State<RevenuePage>
                         ),
                       ],
                     ),
-                  ), // Optional: Add space at the bottom for better appearance
+                  ),
                 ],
               ),
             ),
           );
         },
       ),
-
     );
   }
 
   Widget _buildCard(
-    BuildContext context, {
-    required String title,
-    required List<String> details,
-    required Color color,
-    required double width,
-  }) {
+      BuildContext context, {
+        required String title,
+        required List<String> details,
+        required Color color,
+        required double width,
+      }) {
     return Container(
       width: width,
-      height: MediaQuery.of(context).size.height *
-          0.77, // Increased height for better spacing
+      height: MediaQuery.of(context).size.height * 0.77,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10.0),
+        borderRadius: AppTheme.cardTheme.shape.borderRadius,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -169,9 +162,8 @@ class _RevenuePageState extends State<RevenuePage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Colored title section
           Container(
-            height: MediaQuery.of(context).size.height * 0.30, 
+            height: MediaQuery.of(context).size.height * 0.30,
             decoration: BoxDecoration(
               color: color,
               borderRadius: const BorderRadius.only(
@@ -185,7 +177,7 @@ class _RevenuePageState extends State<RevenuePage>
               text: TextSpan(
                 children: [
                   TextSpan(
-                    text: title.split('\nRS.')[0] + "\n",
+                    text: "${title.split('\nRS.')[0]}\n",
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16.0,
@@ -194,7 +186,7 @@ class _RevenuePageState extends State<RevenuePage>
                     ),
                   ),
                   TextSpan(
-                    text: "RS." + title.split('\nRS.')[1].split('\n')[0] + "\n",
+                    text: "RS.${title.split('\nRS.')[1].split('\n')[0]}\n",
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 29.0,
@@ -214,28 +206,25 @@ class _RevenuePageState extends State<RevenuePage>
               ),
             ),
           ),
-
-          // Details section with scrollable content
           Flexible(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: SingleChildScrollView(
-                // Prevents overflow
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: details
                       .map((detail) => Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: Text(
-                              detail,
-                              textAlign: TextAlign.left,
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontSize: 14.0,
-                                height: 1.5,
-                              ),
-                            ),
-                          ))
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Text(
+                      detail,
+                      textAlign: TextAlign.left,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 14.0,
+                        height: 1.5,
+                      ),
+                    ),
+                  ))
                       .toList(),
                 ),
               ),
@@ -245,7 +234,6 @@ class _RevenuePageState extends State<RevenuePage>
       ),
     );
   }
-
 }
 
 class AnimatedAppBar extends StatelessWidget {
@@ -260,7 +248,6 @@ class AnimatedAppBar extends StatelessWidget {
       builder: (context, child) {
         return Stack(
           children: [
-            // Sine wave background
             AppBar(
               flexibleSpace: CustomPaint(
                 painter: SinWavePainter(controller.value),
@@ -269,18 +256,16 @@ class AnimatedAppBar extends StatelessWidget {
               backgroundColor: Colors.transparent,
               elevation: 0,
             ),
-            // Title and leading button with proper box size and border-radius
             AppBar(
               leading: Container(
-                height: kToolbarHeight, // Full height of the app bar
-                width: kToolbarHeight + 10, // Slightly wider for increased size
+                height: kToolbarHeight,
+                width: kToolbarHeight + 10,
                 decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .scaffoldBackgroundColor, // Match page background
-                  borderRadius: BorderRadius.circular(12.0), // Rounded corners
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  borderRadius: BorderRadius.circular(12.0),
                 ),
                 child: IconButton(
-                  iconSize: 28.0, // Increased size for the icon
+                  iconSize: 28.0,
                   icon: const Icon(Icons.arrow_back),
                   onPressed: () {
                     Navigator.pop(context);
@@ -291,18 +276,20 @@ class AnimatedAppBar extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .scaffoldBackgroundColor, // Match page background
-                    borderRadius:
-                        BorderRadius.circular(12.0), // Rounded corners
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    borderRadius: BorderRadius.circular(12.0),
                   ),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 38.0, // Adjusted for compact title
+                    horizontal: 38.0,
                     vertical: 9.0,
                   ),
                   child: const Text(
                     'Pricing',
                     textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -315,7 +302,6 @@ class AnimatedAppBar extends StatelessWidget {
       },
     );
   }
-
 }
 
 class SinWavePainter extends CustomPainter {
@@ -346,8 +332,8 @@ class SinWavePainter extends CustomPainter {
       for (double x = 0; x < size.width; x++) {
         double y = size.height / 2 +
             sin((x / size.width * 2 * pi) +
-                    (i * pi / 4) - // Offset for multiple waves
-                    animationValue * 2 * pi) *
+                (i * pi / 4) -
+                animationValue * 2 * pi) *
                 20;
         if (x == 0) {
           path.moveTo(x, y);

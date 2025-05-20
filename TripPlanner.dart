@@ -14,6 +14,8 @@ import 'package:thingqbator/home_page.dart';
 import 'firebase_options.dart';
 
 class Planner extends StatelessWidget {
+  const Planner({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -31,7 +33,7 @@ class Planner extends StatelessWidget {
 class TripPlanner extends StatefulWidget {
   final Map<String, dynamic>? locationData;
 
-  const TripPlanner({Key? key, this.locationData}) : super(key: key);
+  const TripPlanner({super.key, this.locationData});
 
   @override
   TripPlannerState createState() => TripPlannerState();
@@ -327,31 +329,29 @@ ${sources?.join('\n') ?? 'No sources available'}
         throw Exception('Failed to generate itinerary after multiple attempts');
       }
 
-      if (finalItinerary != null) {
-        final user = FirebaseAuth.instance.currentUser;
-        final userEmail = user?.email ?? 'Guest';
-        final userDocRef =
-            FirebaseFirestore.instance.collection('itineraries').doc(userEmail);
+      final user = FirebaseAuth.instance.currentUser;
+      final userEmail = user?.email ?? 'Guest';
+      final userDocRef =
+          FirebaseFirestore.instance.collection('itineraries').doc(userEmail);
 
-        await userDocRef.collection('userItineraries').add({
-          'destination': destination,
-          'fromLocation': fromLocation,
-          'itinerary': finalItinerary,
-          'timestamp': FieldValue.serverTimestamp(),
-        });
+      await userDocRef.collection('userItineraries').add({
+        'destination': destination,
+        'fromLocation': fromLocation,
+        'itinerary': finalItinerary,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Itinerary saved successfully!')),
-        );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Itinerary saved successfully!')),
+      );
 
-        setState(() {
-          _itinerary = "$finalItinerary";
-        });
+      setState(() {
+        _itinerary = "$finalItinerary";
+      });
 
-        _destinationController.clear();
-        _fromLocationController.clear();
-      }
-    } catch (error) {
+      _destinationController.clear();
+      _fromLocationController.clear();
+        } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $error')),
       );

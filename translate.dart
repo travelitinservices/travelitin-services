@@ -1,6 +1,7 @@
 /// The `TranslatePage` class in Dart is a Flutter widget that allows users to input text, translate it
 /// to different languages using Google Translate API, listen to the translated text, and display the
 /// translated text with speech capabilities.
+library;
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:translator/translator.dart';
@@ -9,6 +10,8 @@ import 'package:animate_do/animate_do.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class TranslatePage extends StatefulWidget {
+  const TranslatePage({super.key});
+
   @override
   _TranslatePageState createState() => _TranslatePageState();
 }
@@ -19,7 +22,7 @@ class _TranslatePageState extends State<TranslatePage>
   final flutterTts = FlutterTts();
   final TextEditingController _textController = TextEditingController();
 
-  stt.SpeechToText _speechToText = stt.SpeechToText();
+  final stt.SpeechToText _speechToText = stt.SpeechToText();
 
   String _inputText = "";
   String _translatedText = "";
@@ -280,7 +283,7 @@ class _TranslatePageState extends State<TranslatePage>
               String newText = result.recognizedWords;
               if (!_inputText.endsWith(newText)) {
                 // Append only if it's not already appended
-                _inputText = (_inputText + " " + newText).trim();
+                _inputText = ("$_inputText $newText").trim();
                 _textController.text = _inputText;
 
                 // Move cursor to end of the text

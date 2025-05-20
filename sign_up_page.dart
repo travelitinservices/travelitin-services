@@ -8,6 +8,8 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'home_page.dart';
 
 class SignUpPage extends StatefulWidget {
+  const SignUpPage({super.key});
+
   @override
   _SignUpPageState createState() => _SignUpPageState();
 }

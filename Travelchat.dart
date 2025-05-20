@@ -12,6 +12,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'chatwidgets.dart';
 import 'package:go_router/go_router.dart';
 class Travelchatee extends StatelessWidget {
+  const Travelchatee({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -87,7 +89,7 @@ class _TravelchatState extends State<Travelchat> {
 class ExpandableText extends StatefulWidget {
   final String message;
 
-  const ExpandableText({Key? key, required this.message}) : super(key: key);
+  const ExpandableText({super.key, required this.message});
 
   @override
   _ExpandableTextState createState() => _ExpandableTextState();
