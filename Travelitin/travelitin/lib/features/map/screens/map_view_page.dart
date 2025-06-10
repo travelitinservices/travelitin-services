@@ -103,7 +103,7 @@ class _MapViewPageState extends State<MapViewPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Map View'),
-        foregroundColor: AppTheme.accentColor,
+        foregroundColor: Theme.of(context).colorScheme.secondary,
       ),
       body: Container(
         decoration: AppTheme.glassmorphismDecoration,

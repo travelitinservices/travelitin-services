@@ -697,7 +697,7 @@ class _ReportScamsState extends State<ReportScams> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Report Scams'),
-        foregroundColor: AppTheme.accentColor,
+        foregroundColor: Theme.of(context).colorScheme.secondary,
       ),
       body: Container(
         decoration: AppTheme.glassmorphismDecoration,

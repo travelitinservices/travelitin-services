@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Raleway:wght@300;400;600&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #FFD700; /* Yellow for happiness */
+  --secondary: #1b263b; /* Deep navy for accents */
+  --background: #f8f1e9; /* Ivory background */
+  --text: #2b2b2b; /* Softer black for text */
+  --card-bg: #ffffff; /* White for cards */
+  --card-text: #5b5b5b; /* Softer gray for card text */
+  --section-bg: #e6e9f0; /* Light muted blue for sections */
+  --hero-bg: #f8f1e9; /* Ivory for hero section */
+  --footer-bg: #111827; /* Dark background for footer */
+  --footer-text: #b0b7c0; /* Light gray for footer text */
+}
+
+body {
+  font-family: 'Raleway', sans-serif;
+  background-color: var(--background);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+  font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+}
+
+/* Animations */
+.animate-fade-in {
+  animation: fadeIn 1s ease-in-out;
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.7s ease-out;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+/* Button Styles */
+.button-primary {
+  @apply px-8 py-3 rounded-full font-semibold text-base transition-all duration-300;
+  background: linear-gradient(135deg, var(--primary) 0%, #e6c200 100%);
+  color: #2b2b2b;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.button-primary:hover {
+  background: linear-gradient(135deg, #e6c200 0%, var(--primary) 100%);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Card Styles */
+.feature-card {
+  @apply text-center rounded-lg p-6 shadow-lg transition-all duration-300;
+  background: var(--card-bg);
+  color: var(--card-text);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Navigation Links */
+.nav-link {
+  @apply font-medium transition-all duration-300;
+  color: var(--text);
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+}
+
+.nav-link:hover {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* Footer Links */
+.footer-link {
+  @apply font-medium transition-all duration-300;
+  color: var(--footer-text);
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+}
+
+.footer-link:hover {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* Section Spacing */
+section {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Typography */
+h1 {
+  font-size: 3rem;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+
+h2 {
+  font-size: 2.5rem;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+}
+
+p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  letter-spacing: 0.01em;
+}

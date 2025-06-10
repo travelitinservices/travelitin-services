@@ -21,7 +21,7 @@ class _AllFeedbackState extends State<AllFeedback> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Feedback'),
-        foregroundColor: AppTheme.accentColor,
+        foregroundColor: Theme.of(context).colorScheme.secondary,
       ),
       body: Container(
         decoration: AppTheme.glassmorphismDecoration,

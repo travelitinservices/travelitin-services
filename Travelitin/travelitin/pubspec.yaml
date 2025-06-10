@@ -76,6 +76,7 @@ flutter:
   assets:
     - assets/carousel/
     - assets/
+    - assets/animations/
     - .env
 
   fonts:
@@ -114,6 +115,9 @@ flutter:
         - asset: assets/fonts/OliveVillage-Regular.ttf
         - asset: assets/fonts/OliveVillage-Italic.ttf
           style: italic
+    - family: CalSans
+      fonts:
+        - asset: assets/fonts/CalSans-Regular.ttf
 
 flutter_icons:
   android: "launcher_icon"

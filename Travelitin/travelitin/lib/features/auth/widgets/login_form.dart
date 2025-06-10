@@ -179,9 +179,16 @@ class _LoginFormState extends State<LoginForm> {
             width: isSmallScreen ? widget.size.width * 0.85 : 370,
             padding: EdgeInsets.all(isSmallScreen ? 20 : 30),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.3),
+              color: Theme.of(context).cardColor.withOpacity(0.85),
               borderRadius: BorderRadius.circular(35),
-              border: Border.all(color: Colors.white.withOpacity(0.2)),
+              border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.18)),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).shadowColor.withOpacity(0.08),
+                  blurRadius: 18,
+                  spreadRadius: 2,
+                ),
+              ],
             ),
             child: Form(
               key: _formKey,
@@ -192,7 +199,7 @@ class _LoginFormState extends State<LoginForm> {
                     Text(
                       _errorMessage!,
                       style: TextStyle(
-                        color: Colors.red,
+                        color: Theme.of(context).colorScheme.error,
                         fontWeight: FontWeight.bold,
                         fontSize: isSmallScreen ? 14 : 16,
                       ),
@@ -233,6 +240,10 @@ class _LoginFormState extends State<LoginForm> {
                         _isOtpLogin
                             ? 'Login with Email'
                             : 'Login with Phone Number',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],

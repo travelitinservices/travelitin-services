@@ -17,6 +17,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:marquee/marquee.dart';
 import 'package:travelitin/allfeedback.dart';
 import 'package:go_router/go_router.dart';
+import 'package:travelitin/core/constants/routes.dart';
 
 void main() {
   runApp(const HomePage());
@@ -27,32 +28,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Tour App',
-      theme: ThemeData(
-        primaryColor: Colors.blue,
-        colorScheme: ColorScheme.fromSwatch().copyWith(
-          secondary: Colors.orangeAccent,
-        ),
-        scaffoldBackgroundColor: const Color(0xFFF3F5F7),
-      ),
-      home: const HomeScreen(),
-      routes: {
-        '/editProf': (context) => const EditProfileScreen(),
-        '/login_page': (context) => const LoginPage(),
-      },
-      onGenerateRoute: (settings) {
-        if (settings.name == '/editProf') {
-          return MaterialPageRoute(
-              builder: (context) => const EditProfileScreen());
-        }
-        if (settings.name == '/login_page') {
-           return MaterialPageRoute(builder: (context) => const LoginPage());
-        }
-        return null;
-      },
-    );
+    return const HomeScreen();
   }
 }
 
@@ -81,6 +57,12 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            _logout(context);
+          },
+        ),
         title: const Text(
           'A Safety Guide',
           style: TextStyle(
@@ -221,16 +203,16 @@ class _HomeScreenState extends State<HomeScreen>
 
     switch (selected) {
       case profileInfo:
-        Navigator.pushNamed(context, '/editProf');
+        context.push(AppRoutes.editProfile);
         break;
       case logout:
         _logout(context);
         break;
       case pricing:
-        context.push('/Revenue');
+        context.push(AppRoutes.revenue);
         break;
       case feedback:
-        context.push('/Feed');
+        context.push(AppRoutes.feed);
         break;
     }
   }
@@ -239,7 +221,7 @@ class _HomeScreenState extends State<HomeScreen>
     try {
       await FirebaseAuth.instance.signOut();
 
-      context.go('/Login');
+      context.go(AppRoutes.login);
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -857,8 +839,8 @@ class _LocationAlertsWeatherState extends State<LocationAlertsWeather>
                                                         style: TextStyle(
                                                           fontSize: 14,
                                                           color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold,
+                                                          fontWeight: FontWeight
+                                                              .bold,
                                                         ),
                                                       ),
                                                     ),
@@ -1693,7 +1675,7 @@ class Footer extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Text(
-                    'Made by : Gomathi Manisha , Antonio Roger, Ravula Akshith',
+                    'Made by : Gomathi Manisha , Antonio Roger, Ravula Akshith, Raghuram Sekar',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 16.0,

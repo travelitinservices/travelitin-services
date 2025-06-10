@@ -22,6 +22,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:travelitin/core/services/error_handling_service.dart';
 import 'firebase_options.dart';
+import 'package:provider/provider.dart';
+import 'package:travelitin/features/landing/screens/landing_page.dart';
+import 'package:travelitin/editProf.dart';
 
 // AuthChangeNotifier listens for login/logout and refreshes GoRouter
 class AuthChangeNotifier extends ChangeNotifier {
@@ -34,34 +37,32 @@ class AuthChangeNotifier extends ChangeNotifier {
   }
 }
 
+class ThemeModeNotifier extends ChangeNotifier {
+  ThemeMode _themeMode = ThemeMode.system;
+
+  ThemeMode get themeMode => _themeMode;
+
+  void setThemeMode(ThemeMode mode) {
+    _themeMode = mode;
+    notifyListeners();
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  try {
-    // Initialize Firebase
+  await dotenv.load(fileName: ".env");
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    
-    // Load environment variables
-    await dotenv.load(fileName: '.env');
-    
-    // Run the app
-    runApp(const SafetyGuideApp());
-  } catch (e, stack) {
-    print('Initialization error: $e');
-    print(stack);
-    runApp(MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text(
-            'Initialization error: $e',
-            style: const TextStyle(color: Colors.red),
-          ),
-        ),
+    runApp(
+      MultiProvider(
+        providers: [
+        ChangeNotifierProvider(create: (_) => AuthChangeNotifier()),
+          ChangeNotifierProvider(create: (_) => ThemeModeNotifier()),
+        ],
+        child: const SafetyGuideApp(),
       ),
-    ));
-  }
+    );
 }
 
 class SafetyGuideApp extends StatelessWidget {
@@ -70,13 +71,14 @@ class SafetyGuideApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final router = GoRouter(
-      initialLocation: AppRoutes.login,
+      initialLocation: AppRoutes.landing,
       debugLogDiagnostics: true,
       refreshListenable: AuthChangeNotifier(),
       redirect: (context, state) {
         final user = FirebaseService().currentUser;
         final isLoggedIn = user != null;
         final isOnPublicPage = [
+          AppRoutes.landing,
           AppRoutes.login,
           AppRoutes.signup,
           AppRoutes.forgotPassword,
@@ -94,6 +96,10 @@ class SafetyGuideApp extends StatelessWidget {
       },
       routes: [
         GoRoute(
+          path: AppRoutes.landing,
+          builder: (context, state) => const LandingPage(),
+        ),
+        GoRoute(
           path: AppRoutes.login,
           builder: (context, state) => const LoginPage(),
         ),
@@ -108,6 +114,10 @@ class SafetyGuideApp extends StatelessWidget {
         GoRoute(
           path: AppRoutes.home,
           builder: (context, state) => const HomePage(),
+        ),
+        GoRoute(
+          path: AppRoutes.editProfile,
+          builder: (context, state) => const EditProfileScreen(),
         ),
         GoRoute(
           path: AppRoutes.feed,
@@ -152,13 +162,13 @@ class SafetyGuideApp extends StatelessWidget {
       ],
     );
 
+    final themeNotifier = Provider.of<ThemeModeNotifier>(context);
+
     return MaterialApp.router(
       title: 'Safety Guide',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.white,
-        cardTheme: AppTheme.cardTheme,
-      ),
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeNotifier.themeMode,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );
