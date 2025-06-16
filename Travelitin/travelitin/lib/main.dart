@@ -113,7 +113,7 @@ class SafetyGuideApp extends StatelessWidget {
         ),
         GoRoute(
           path: AppRoutes.home,
-          builder: (context, state) => const HomePage(),
+          builder: (context, state) => HomePage(),
         ),
         GoRoute(
           path: AppRoutes.editProfile,

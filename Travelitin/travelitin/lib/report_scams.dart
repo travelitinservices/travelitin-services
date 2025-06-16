@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'firebase_options.dart';
 import 'package:travelitin/core/constants/theme/appTheme.dart';
+import 'package:travelitin/core/constants/theme/color_extension.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,6 +59,8 @@ class _ScamReportPageState extends State<ScamReportPage> {
   final TextEditingController locationController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
   final TextEditingController searchController = TextEditingController();
+  final TextEditingController _reviewController = TextEditingController();
+  int? _selectedRating;
 
   bool isLoading = true;
   bool isSubmitting = false;
@@ -67,10 +70,48 @@ class _ScamReportPageState extends State<ScamReportPage> {
   List<Map<String, dynamic>> searchResults = [];
   final ScrollController _scrollController = ScrollController();
 
+  final Map<String, String> _helplineNumbers = {
+    'India': '+91-112',
+    'United States': '+1-911',
+    'United Kingdom': '+44-999',
+    'Canada': '+1-911',
+    'Australia': '+61-000',
+    'Global': '+1-800-XXX-XXXX',
+  };
+
+  String _currentHelpline = '+1-800-XXX-XXXX';
+
   @override
   void initState() {
     super.initState();
     _fetchUserData();
+    locationController.addListener(_updateHelpline);
+  }
+
+  @override
+  void dispose() {
+    locationController.removeListener(_updateHelpline);
+    locationController.dispose();
+    contentController.dispose();
+    searchController.dispose();
+    _reviewController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _updateHelpline() {
+    final locationText = locationController.text.toLowerCase();
+    String matchedHelpline = _helplineNumbers['Global']!;
+
+    _helplineNumbers.forEach((country, number) {
+      if (locationText.contains(country.toLowerCase())) {
+        matchedHelpline = number;
+      }
+    });
+
+    setState(() {
+      _currentHelpline = matchedHelpline;
+    });
   }
 
   Future<void> _fetchUserData() async {
@@ -256,426 +297,484 @@ class _ScamReportPageState extends State<ScamReportPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
-        title: Row(
-          children: [
-            Text(
-              '  Scam Alerts',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: const Color.fromARGB(221, 255, 255, 255),
-                letterSpacing: 1.2,
-                shadows: [
-                  Shadow(
-                    blurRadius: 10.0,
-                    color: Colors.grey.withOpacity(0.1),
-                    offset: Offset(2, 2),
-                  ),
-                ],
-              ),
-              textAlign: TextAlign.center,
-            )
-          ],
-        ),
-        backgroundColor: Colors.blue[600],
+        title: const Text('Report Scams'),
+        backgroundColor: AppTheme.lightTheme.primaryColor,
+        foregroundColor: Colors.white,
       ),
-      body: isLoading
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Loading...'),
-                ],
+      body: CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 180.0,
+            floating: false,
+            pinned: false,
+            snap: false,
+            flexibleSpace: FlexibleSpaceBar(
+              centerTitle: true,
+              titlePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppTheme.lightTheme.primaryColor.withOpacity(0.9),
+                      AppTheme.lightTheme.primaryColor.darken(0.1),
+                    ],
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Your Safety, Our Priority',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Report online scams and get immediate support.',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            )
-          : SingleChildScrollView(
-              controller: _scrollController,
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.blue[600],
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(32),
-                        bottomRight: Radius.circular(32),
+                  // Report a Scam Section
+                  Card(
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.report_problem, color: Colors.redAccent, size: 28),
+                              SizedBox(width: 12),
+                              Text(
+                                'Report a Scam',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          Text(
+                            'Provide details of the scam to help us take action.',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          TypeAheadField<String>(
+                            textFieldConfiguration: TextFieldConfiguration(
+                              controller: locationController,
+                              decoration: InputDecoration(
+                                labelText: 'Location (Country, City, etc.)',
+                                hintText: 'e.g., India, New Delhi',
+                                prefixIcon: Icon(Icons.location_on),
+                              ),
+                            ),
+                            suggestionsCallback: fetchSuggestions,
+                            itemBuilder: (context, String suggestion) {
+                              return ListTile(
+                                title: Text(suggestion),
+                              );
+                            },
+                            onSuggestionSelected: (String suggestion) {
+                              locationController.text = suggestion;
+                            },
+                          ),
+                          SizedBox(height: 16),
+                          TextField(
+                            controller: contentController,
+                            decoration: InputDecoration(
+                              labelText: 'Scam Description',
+                              hintText: 'Describe the scam in detail...',
+                              alignLabelWithHint: true,
+                            ),
+                            maxLines: 6,
+                          ),
+                          SizedBox(height: 24),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: isSubmitting ? null : reportScam,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.redAccent,
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 4,
+                              ),
+                              icon: isSubmitting ? SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white))) : Icon(Icons.send),
+                              label: Text(
+                                isSubmitting ? 'Submitting...' : 'Submit Report',
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Welcome,',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white70,
+                  ),
+                  SizedBox(height: 32),
+
+                  // Rate Your Experience Section
+                  Card(
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.star, color: Colors.amber, size: 28),
+                              SizedBox(width: 12),
+                              Text(
+                                'Rate Your Experience',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        Text(
-                          firstName,
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                          SizedBox(height: 20),
+                          Text(
+                            'Help us improve by rating your experience with our reporting process.',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.grey[700],
+                            ),
                           ),
-                        ),
-                      ],
+                          SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(5, (index) {
+                              return IconButton(
+                                icon: Icon(
+                                  index < (_selectedRating ?? 0) ? Icons.star : Icons.star_border,
+                                  color: Colors.amber,
+                                  size: 36,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedRating = index + 1;
+                                  });
+                                },
+                              );
+                            }),
+                          ),
+                          SizedBox(height: 16),
+                          TextField(
+                            controller: _reviewController,
+                            decoration: InputDecoration(
+                              labelText: 'Your Comments (Optional)',
+                              hintText: 'Share your feedback...',
+                              alignLabelWithHint: true,
+                            ),
+                            maxLines: 3,
+                          ),
+                          SizedBox(height: 24),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                // Implement review submission logic here
+                                _showSuccessSnackBar('Thank you for your feedback!');
+                                setState(() {
+                                  _selectedRating = null;
+                                  _reviewController.clear();
+                                });
+                              },
+                              icon: Icon(Icons.feedback, color: Colors.white),
+                              label: Text('Submit Feedback', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blueAccent,
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Card(
-                          child: Column(
-                            children: [
-                              ListTile(
-                                title: Row(
-                                  children: [
-                                    Icon(Icons.warning_amber_rounded,
-                                        color: const Color.fromARGB(
-                                            255, 255, 132, 0)),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Report a Scam',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                trailing: IconButton(
-                                  icon: Icon(
-                                    showReportForm
-                                        ? Icons.keyboard_arrow_up
-                                        : Icons.keyboard_arrow_down,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      showReportForm = !showReportForm;
-                                    });
-                                  },
-                                ),
-                              ),
-                              if (showReportForm)
-                                Padding(
-                                  padding: EdgeInsets.all(16),
-                                  child: Column(
-                                    children: [
-                                      TypeAheadField<String>(
-                                        builder:
-                                            (context, controller, focusNode) {
-                                          return TextField(
-                                            controller: controller,
-                                            focusNode: focusNode,
-                                            decoration: InputDecoration(
-                                              labelText: 'Location',
-                                              prefixIcon:
-                                                  Icon(Icons.location_pin),
-                                            ),
-                                            onTap: () {
-                                              setState(() {
-                                                showSearchForm = false;
-                                              });
-                                            },
-                                          );
-                                        },
-                                        suggestionsCallback: fetchSuggestions,
-                                        itemBuilder:
-                                            (context, String suggestion) {
-                                          return Container(
-                                            child: ListTile(
-                                              leading: Icon(Icons.location_on),
-                                              title: Text(
-                                                suggestion,
-                                                style: TextStyle(
-                                                    color: Colors.black),
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        onSelected: (String suggestion) {
-                                          locationController.text = suggestion;
-                                          setState(() {
-                                            showSearchForm = false;
-                                          });
-                                        },
-                                      ),
-                                      SizedBox(height: 16),
-                                      TextField(
-                                        controller: contentController,
-                                        decoration: InputDecoration(
-                                          labelText:
-                                              'Describe the scam in detail...',
-                                          alignLabelWithHint: true,
-                                        ),
-                                        maxLines: 4,
-                                        onTap: () {
-                                          setState(() {
-                                            showSearchForm = false;
-                                          });
-                                        },
-                                      ),
-                                      SizedBox(height: 16),
-                                      SizedBox(
-                                        width: double.infinity,
-                                        child: ElevatedButton(
-                                          onPressed:
-                                              isSubmitting ? null : reportScam,
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                Colors.white.withOpacity(0.9),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                          ),
-                                          child: Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                vertical: 16),
-                                            child: isSubmitting
-                                                ? SizedBox(
-                                                    height: 20,
-                                                    width: 20,
-                                                    child:
-                                                        CircularProgressIndicator(
-                                                      strokeWidth: 2,
-                                                      valueColor:
-                                                          AlwaysStoppedAnimation<
-                                                                  Color>(
-                                                              Colors.white),
-                                                    ),
-                                                  )
-                                                : Text(
-                                                    'Submit Report',
-                                                    style:
-                                                        TextStyle(fontSize: 16),
-                                                  ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 24),
-                        Card(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ListTile(
-                                title: Row(
-                                  children: [
-                                    Icon(Icons.search, color: Colors.blue),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      'Search Reported Scams',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                trailing: IconButton(
-                                  icon: Icon(
-                                    showSearchForm
-                                        ? Icons.keyboard_arrow_up
-                                        : Icons.keyboard_arrow_down,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      showSearchForm = !showSearchForm;
-                                    });
-                                  },
-                                ),
-                              ),
-                              if (showSearchForm)
-                                Padding(
-                                  padding: EdgeInsets.all(16),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      TypeAheadField<String>(
-                                        builder:
-                                            (context, controller, focusNode) {
-                                          return TextField(
-                                            controller: controller,
-                                            focusNode: focusNode,
-                                            decoration: InputDecoration(
-                                              labelText:
-                                                  'Search by Location or Content',
-                                              prefixIcon: Icon(Icons.search),
-                                            ),
-                                            onTap: () {
-                                              setState(() {
-                                                showReportForm = false;
-                                              });
-                                            },
-                                          );
-                                        },
-                                        suggestionsCallback: fetchSuggestions,
-                                        itemBuilder:
-                                            (context, String suggestion) {
-                                          return ListTile(
-                                            leading: Icon(Icons.location_on),
-                                            title: Text(
-                                              suggestion,
-                                              style: TextStyle(
-                                                  color: Colors.black),
-                                            ),
-                                          );
-                                        },
-                                        onSelected: (String suggestion) {
-                                          searchController.text = suggestion;
-                                          setState(() {
-                                            showReportForm = false;
-                                          });
-                                          performSearch(suggestion);
-                                        },
-                                      ),
-                                      SizedBox(height: 16),
-                                      SizedBox(
-                                        width: double.infinity,
-                                        child: ElevatedButton.icon(
-                                          onPressed: () {
-                                            performSearch(
-                                                searchController.text.trim());
-                                            setState(() {
-                                              showReportForm = false;
-                                              showSearchForm = false;
-                                            });
-                                          },
-                                          icon: Icon(Icons.search),
-                                          label: Text('Search'),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                Colors.white.withOpacity(0.9),
-                                            padding: EdgeInsets.symmetric(
-                                                vertical: 16),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 24),
-                        if (searchResults.isNotEmpty) ...[
-                          SizedBox(height: 16),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: Text(
-                              'Search Results',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          SingleChildScrollView(
-                            // Add this wrapper
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount: searchResults.length,
-                              itemBuilder: (context, index) {
-                                final result = searchResults[index];
-                                final timestamp =
-                                    result['timestamp'] as DateTime?;
-                                final formattedDate = timestamp != null
-                                    ? DateFormat('MMM d, yyyy h:mm a')
-                                        .format(timestamp)
-                                    : 'Date unknown';
+                  SizedBox(height: 32),
 
-                                return Card(
-                                  child: Padding(
-                                    padding: EdgeInsets.all(16),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Icon(Icons.location_on,
-                                                color: Colors.blue[600]),
-                                            SizedBox(width: 8),
-                                            Expanded(
-                                              child: Text(
-                                                result['location'] ??
-                                                    'Unknown Location',
-                                                style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 8),
-                                        Text(
-                                          result['content'] ?? 'No Details',
-                                          style: TextStyle(fontSize: 16),
-                                        ),
-                                        SizedBox(height: 8),
-                                        Text(
-                                          formattedDate,
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
+                  // Helpline & Support Section
+                  Card(
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.phone, color: Colors.green, size: 28),
+                              SizedBox(width: 12),
+                              Text(
+                                'Helpline & Support',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          Text(
+                            'Contact relevant authorities in your region for immediate assistance.',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.grey[700],
                             ),
                           ),
-                        ] else if (searchController.text.isNotEmpty) ...[
-                          Center(
-                            child: Column(
-                              children: [
-                                Icon(
-                                  Icons.search_off,
-                                  size: 64,
-                                  color: Colors.grey[400],
+                          SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Current Helpline:',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              SelectableText(
+                                _currentHelpline,
+                                style: TextStyle(fontSize: 18, color: Colors.blue, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'Note: The helpline number displayed is based on the location you entered. Always verify with local official sources. In case of immediate danger, contact your local emergency services (e.g., 911 in the US, 112 in EU, 999 in UK, 100 in India).',
+                            style: TextStyle(fontSize: 13, color: Colors.grey[600], fontStyle: FontStyle.italic),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 32),
+
+                  // Search Reported Scams Section
+                  Card(
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.search, color: Colors.blue, size: 28),
+                              SizedBox(width: 12),
+                              Text(
+                                'Search Reported Scams',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
                                 ),
-                                SizedBox(height: 16),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          Text(
+                            'Search our database for previously reported scams by location or description.',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          TypeAheadField<String>(
+                            textFieldConfiguration: TextFieldConfiguration(
+                              controller: searchController,
+                              decoration: InputDecoration(
+                                labelText: 'Search by Location or Content',
+                                prefixIcon: Icon(Icons.search),
+                              ),
+                            ),
+                            suggestionsCallback: fetchSuggestions,
+                            itemBuilder: (context, String suggestion) {
+                              return ListTile(
+                                leading: Icon(Icons.location_on),
+                                title: Text(
+                                  suggestion,
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              );
+                            },
+                            onSuggestionSelected: (String suggestion) {
+                              searchController.text = suggestion;
+                              performSearch(suggestion);
+                            },
+                          ),
+                          SizedBox(height: 24),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                performSearch(searchController.text.trim());
+                              },
+                              icon: Icon(Icons.search, color: Colors.white),
+                              label: Text('Search', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blueAccent,
+                                foregroundColor: Colors.white,
+                                padding: EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 32),
+
+                  // Search Results Display
+                  if (isLoading) ...[
+                    Center(child: CircularProgressIndicator()),
+                  ] else if (searchResults.isNotEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: Text(
+                        'Recent Scam Reports',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: searchResults.length,
+                      itemBuilder: (context, index) {
+                        final result = searchResults[index];
+                        final timestamp = result['timestamp'] as DateTime?;
+                        final formattedDate = timestamp != null
+                            ? DateFormat('MMM d, yyyy h:mm a').format(timestamp)
+                            : 'Date unknown';
+
+                        return Card(
+                          elevation: 3,
+                          margin: EdgeInsets.symmetric(vertical: 8),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.location_on, color: Colors.blue[600], size: 20),
+                                    SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        result['location'] ?? 'Unknown Location',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 8),
                                 Text(
-                                  'No scams reported in this area yet.',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey[600],
-                                  ),
+                                  result['content'] ?? 'No Details Provided',
+                                  style: TextStyle(fontSize: 16, color: Colors.black87),
+                                ),
+                                SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Icon(Icons.access_time, color: Colors.grey[500], size: 16),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      formattedDate,
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
                           ),
-                        ]
-                      ],
+                        );
+                      },
                     ),
-                  ),
+                  ] else if (searchController.text.isNotEmpty) ...[
+                    Center(
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'No scams reported in this area yet.',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  SizedBox(height: 40), // Spacing at the bottom
                 ],
               ),
             ),
+          ),
+        ],
+      ),
     );
   }
 }
