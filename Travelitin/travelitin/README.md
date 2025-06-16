@@ -125,8 +125,4 @@ Run tests using:
 flutter test
 ```
 
-## 📄 License
-
-This project is licensed under the MIT License.
-
-**Made with ❤️ using Flutter and Firebase by Raghuram Sekar** 
+**Made with using Flutter and Firebase by Raghuram Sekar** 
