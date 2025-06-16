@@ -1,4 +1,10 @@
+import { useState } from "react";
+
 function FeedbackForm() {
+
+  const initialValues={user:"",email:"",feedback:""}
+  const {feedback,setfeedback}=useState(initialValues)
+
   return (
     <section className="relative overflow-hidden min-h-screen bg-gradient-to-tr from-sky-300 via-blue-100 to-white py-16">
       {/* Animated Clouds */}
@@ -26,6 +32,7 @@ function FeedbackForm() {
                 type="text"
                 id="name"
                 placeholder=" "
+                onChange={(e)=>setfeedback({user:e.target.value,email:feedback.email,feedback:feedback.feedback})}
                 className="peer w-full px-5 py-4 rounded-lg border border-gray-300 
                   text-gray-900 placeholder-transparent
                   focus:outline-none focus:ring-2 focus:ring-[var(--primary)] 
@@ -49,6 +56,7 @@ function FeedbackForm() {
                 type="email"
                 id="email"
                 placeholder=" "
+                onChange={(e)=>setfeedback({user:feedback.user,email:e.target.value,feedback:feedback.feedback})}
                 className="peer w-full px-5 py-4 rounded-lg border border-gray-300 
                   text-gray-900 placeholder-transparent
                   focus:outline-none focus:ring-2 focus:ring-[var(--primary)] 
@@ -72,6 +80,7 @@ function FeedbackForm() {
                 id="message"
                 placeholder=" "
                 rows="5"
+                onChange={(e)=>setfeedback({user:feedback.user,email:feedback.email,feedback:e.target.value})}
                 className="peer w-full px-5 py-4 rounded-lg border border-gray-300
                   text-gray-900 placeholder-transparent resize-none
                   focus:outline-none focus:ring-2 focus:ring-[var(--primary)] 
@@ -92,6 +101,7 @@ function FeedbackForm() {
             {/* Submit Button */}
             <button
               type="submit"
+              onSubmit={()=>{axios.post('http://localhost:5000/login',feedback)}}
               className="relative w-full py-4 bg-[var(--primary)] text-white font-semibold rounded-lg
                 hover:bg-[var(--primary-dark)] transition duration-300 shadow-lg
                 focus:outline-none focus:ring-4 focus:ring-[var(--primary-light)] flex items-center justify-center gap-3"
