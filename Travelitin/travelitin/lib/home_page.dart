@@ -6,6 +6,15 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:travelitin/report_scams.dart'; // Import for ReportScamsPage
 import 'package:travelitin/chatwidgets.dart'; // Import for TravelChatPage
 import 'package:travelitin/placeholder_page.dart'; // Import for PlaceholderPage
+import 'package:travelitin/features/travel/screens/TripPlanner.dart';
+import 'package:travelitin/features/travel/screens/travel_expense.dart';
+import 'package:travelitin/features/translate/screens/translate.dart';
+import 'package:travelitin/features/travel/screens/Travelchat.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geolocator/geolocator.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,7 +28,10 @@ class _HomePageState extends State<HomePage> {
   int navTabIndex = 0;
   int searchTabIndex = 0;
   int offersTabIndex = 0;
-  final String userName = "Traveler";
+  String _userName = "Traveler";
+  String? currentLocation;
+  String travelAlert = '⚠️ Heavy rain expected in Coimbatore today. Please plan accordingly!';
+  bool isFetchingLocation = true;
   final TextEditingController _searchController = TextEditingController();
 
   final List<Map<String, dynamic>> navTabs = [
@@ -120,6 +132,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     fetchUserName();
+    
   }
 
   Future<void> fetchUserName() async {
@@ -129,7 +142,7 @@ class _HomePageState extends State<HomePage> {
 
     final idToken = await user?.getIdToken();
     if (idToken == null) {
-      setState(() => userName = 'Not signed in');
+      setState(() => _userName = 'Not signed in');
       return;
     }
 
@@ -144,18 +157,19 @@ class _HomePageState extends State<HomePage> {
       final data = json.decode(response.body);
       print('Fetched username data: $data');
       setState(() {
-        userName = data['username'] ?? "Traveler";
+        _userName = data['username'] ?? "Traveler";
       });
     } else {
       print('Failed to fetch username. Status: ${response.statusCode}');
-      setState(() => userName = 'Unknown');
+      setState(() => _userName = 'Unknown');
     }
   } catch (e) {
     print('Error during username fetch: $e');
-    setState(() => userName = 'Error');
+    setState(() => _userName = 'Error');
   }
 }
 
+  
 
   void _showLocationSearchSheet(bool isFrom) {
     showModalBottomSheet(
@@ -494,89 +508,89 @@ class _HomePageState extends State<HomePage> {
     final theme = isDarkMode ? ThemeData.dark() : ThemeData.light();
 
     final appBar = PreferredSize(
-      preferredSize: const Size.fromHeight(145),
-      child: Column(
-        children: [
-          Container(
-            color: const Color(0xFF1A1A1A),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            child: Row(
-              children: [
-                Text('Travelitin', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
-                const SizedBox(width: 24),
-                _buildTopBarItem('List Your Property', null),
-                const SizedBox(width: 16),
-                _buildTopBarItem('Introducing myBiz', null),
-                const Spacer(),
-                _buildTopBarItem('My Trips', Icons.airplane_ticket),
-                const SizedBox(width: 16),
-                _buildTopBarItem('Hi $userName', Icons.person),
-                const SizedBox(width: 16),
-                _buildLanguageCurrencySelector(),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode, color: isDarkMode ? Colors.yellow : Colors.white),
-                  onPressed: () => setState(() => isDarkMode = !isDarkMode),
-                  tooltip: 'Toggle Dark Mode',
+          preferredSize: const Size.fromHeight(145),
+          child: Column(
+            children: [
+              Container(
+                color: const Color(0xFF1A1A1A),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                child: Row(
+                  children: [
+                    Text('Travelitin', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
+                    const SizedBox(width: 24),
+                    _buildTopBarItem('List Your Property', null),
+                    const SizedBox(width: 16),
+                    _buildTopBarItem('Introducing myBiz', null),
+                    const Spacer(),
+                    _buildTopBarItem('My Trips', Icons.airplane_ticket),
+                    const SizedBox(width: 16),
+                    _buildTopBarItem('Hi $_userName', Icons.person),
+                    const SizedBox(width: 16),
+                    _buildLanguageCurrencySelector(),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode, color: isDarkMode ? Colors.yellow : Colors.white),
+                      onPressed: () => setState(() => isDarkMode = !isDarkMode),
+                      tooltip: 'Toggle Dark Mode',
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Center(
-              child: Container(
-                margin: const EdgeInsets.only(top: 8, bottom: 8),
-                width: MediaQuery.of(context).size.width * 0.9,
-                constraints: const BoxConstraints(maxWidth: 1100),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 2)],
-                ),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: List.generate(navTabs.length, (i) => GestureDetector(
-                      onTap: () => setState(() => navTabIndex = i),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: navTabIndex == i ? Colors.blue : Colors.transparent,
-                              width: 3,
-                            ),
-                          ),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(navTabs[i]['icon'], color: navTabIndex == i ? Colors.blue : Colors.grey[600], size: 28),
-                            const SizedBox(height: 4),
-                            Text(
-                              navTabs[i]['label'],
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.poppins(
-                                fontWeight: navTabIndex == i ? FontWeight.bold : FontWeight.w500,
-                                color: navTabIndex == i ? Colors.blue : Colors.grey[800],
-                                fontSize: 11,
+              ),
+              Expanded(
+                child: Center(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 8, bottom: 8),
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    constraints: const BoxConstraints(maxWidth: 1100),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 2)],
+                    ),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: List.generate(navTabs.length, (i) => GestureDetector(
+                          onTap: () => setState(() => navTabIndex = i),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: navTabIndex == i ? Colors.blue : Colors.transparent,
+                                  width: 3,
+                                ),
                               ),
                             ),
-                          ],
-                        ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(navTabs[i]['icon'], color: navTabIndex == i ? Colors.blue : Colors.grey[600], size: 28),
+                                const SizedBox(height: 4),
+                                Text(
+                                  navTabs[i]['label'],
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: navTabIndex == i ? FontWeight.bold : FontWeight.w500,
+                                    color: navTabIndex == i ? Colors.blue : Colors.grey[800],
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )),
                       ),
-                    )),
+                    ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
     );
-
+    print("Rendering UI with username: $_userName");
     return Theme(
       data: theme.copyWith(
         textTheme: GoogleFonts.poppinsTextTheme(theme.textTheme),
@@ -585,73 +599,267 @@ class _HomePageState extends State<HomePage> {
       ),
       child: Scaffold(
         appBar: appBar,
-        body: SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height - appBar.preferredSize.height - MediaQuery.of(context).padding.top),
-            child: Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: 180,
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: CachedNetworkImageProvider('https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1920&q=80'),
-                      fit: BoxFit.cover,
-                      colorFilter: ColorFilter.mode(
-                          isDarkMode ? Colors.black.withOpacity(0.5) : Colors.black.withOpacity(0.2),
-                          BlendMode.darken),
-                    ),
-                    borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
-                  ),
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(40, 20, 0, 0),
-                      child: Text(
-                        "Where do you want to go, $userName?",
-                        style: GoogleFonts.poppins(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          shadows: const [Shadow(blurRadius: 8, color: Colors.black54)],
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height - appBar.preferredSize.height - MediaQuery.of(context).padding.top),
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      height: 180,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: CachedNetworkImageProvider('https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1920&q=80'),
+                          fit: BoxFit.cover,
+                          colorFilter: ColorFilter.mode(
+                              isDarkMode ? Colors.black.withOpacity(0.5) : Colors.black.withOpacity(0.2),
+                              BlendMode.darken),
+                        ),
+                        borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(40, 20, 40, 0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Where do you want to go, $_userName?",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    shadows: const [Shadow(blurRadius: 8, color: Colors.black54)],
+                                  ),
+                                ),
+                                if (!isFetchingLocation && currentLocation != null && currentLocation!.isNotEmpty)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.85),
+                                      borderRadius: BorderRadius.circular(30),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.10),
+                                          blurRadius: 8,
+                                          offset: Offset(0, 2),
+                                        ),
+                                      ],
+                                      border: Border.all(color: Colors.blueGrey.withOpacity(0.22)),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.location_on, color: Colors.blue[700], size: 20),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          currentLocation!,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 15,
+                                            color: Colors.black87,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            if (travelAlert.isNotEmpty)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Container(
+                                    margin: const EdgeInsets.only(top: 8.0, right: 40.0),
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange[50],
+                                      borderRadius: BorderRadius.circular(30),
+                                      border: Border.all(color: Colors.orange[200]!, width: 1),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.orange.withOpacity(0.08),
+                                          blurRadius: 6,
+                                          offset: Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(Icons.warning_amber_rounded, color: Colors.orange[800], size: 18),
+                                        const SizedBox(width: 6),
+                                        Flexible(
+                                          child: Text(
+                                            travelAlert,
+                                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black87),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
                         ),
                       ),
                     ),
-                  ),
-                ),
-                Transform.translate(
-                  offset: const Offset(0, -60),
-                  child: Center(
-                    child: Container(
-                      width: MediaQuery.of(context).size.width * 0.9,
-                      constraints: const BoxConstraints(maxWidth: 1100),
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 2)],
+                    Transform.translate(
+                      offset: const Offset(0, -60),
+                      child: Center(
+                        child: Container(
+                          width: MediaQuery.of(context).size.width * 0.9,
+                          constraints: const BoxConstraints(maxWidth: 1100),
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, spreadRadius: 2)],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: List.generate(searchTabs.length, (i) => GestureDetector(
+                                    onTap: () => setState(() => searchTabIndex = i),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                      margin: const EdgeInsets.only(right: 8),
+                                      decoration: BoxDecoration(
+                                        color: searchTabIndex == i ? Colors.blue[50] : Colors.grey[100],
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: searchTabIndex == i ? Colors.blue : Colors.grey[300]!),
+                                      ),
+                                      child: Text(
+                                        searchTabs[i],
+                                        style: TextStyle(
+                                          color: searchTabIndex == i ? Colors.blue : Colors.grey[800],
+                                          fontWeight: searchTabIndex == i ? FontWeight.bold : FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  )),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () => _showLocationSearchSheet(true),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(color: Colors.grey[300]!),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text('From', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              fromLocationDisplay ?? 'Select City',
+                                              style: TextStyle(
+                                                color: fromLocationDisplay != null ? Colors.black : Colors.grey[400],
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () => _showLocationSearchSheet(false),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(color: Colors.grey[300]!),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text('To', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              toLocationDisplay ?? 'Select City',
+                                              style: TextStyle(
+                                                color: toLocationDisplay != null ? Colors.black : Colors.grey[400],
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                children: [
+                                  _fareOption('Economy', true),
+                                  _fareOption('Premium Economy', false),
+                                  _fareOption('Business', false),
+                                  _fareOption('First', false),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed: () {},
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blue,
+                                  minimumSize: const Size(double.infinity, 50),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                                child: Text('Search Flights', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold)),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
+                    ),
+                    const SizedBox(height: 40),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Text('Offers For You', style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 16),
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: Row(
-                              children: List.generate(searchTabs.length, (i) => GestureDetector(
-                                onTap: () => setState(() => searchTabIndex = i),
+                              children: List.generate(offersTabs.length, (i) => GestureDetector(
+                                onTap: () => setState(() => offersTabIndex = i),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                   margin: const EdgeInsets.only(right: 8),
                                   decoration: BoxDecoration(
-                                    color: searchTabIndex == i ? Colors.blue[50] : Colors.grey[100],
+                                    color: offersTabIndex == i ? Colors.blue[50] : Colors.grey[100],
                                     borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: searchTabIndex == i ? Colors.blue : Colors.grey[300]!),
+                                    border: Border.all(color: offersTabIndex == i ? Colors.blue : Colors.grey[300]!),
                                   ),
                                   child: Text(
-                                    searchTabs[i],
+                                    offersTabs[i],
                                     style: TextStyle(
-                                      color: searchTabIndex == i ? Colors.blue : Colors.grey[800],
-                                      fontWeight: searchTabIndex == i ? FontWeight.bold : FontWeight.w500,
+                                      color: offersTabIndex == i ? Colors.blue : Colors.grey[800],
+                                      fontWeight: offersTabIndex == i ? FontWeight.bold : FontWeight.w500,
                                     ),
                                   ),
                                 ),
@@ -659,198 +867,80 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () => _showLocationSearchSheet(true),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey[300]!),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text('From', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          fromLocationDisplay ?? 'Select City',
-                                          style: TextStyle(
-                                            color: fromLocationDisplay != null ? Colors.black : Colors.grey[400],
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                          SizedBox(
+                                height: 250,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: offers.length,
+                              itemBuilder: (context, index) => Container(
+                                width: 300,
+                                margin: const EdgeInsets.only(right: 16),
+                                child: _offerCard(offers[index]),
                               ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () => _showLocationSearchSheet(false),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.grey[300]!),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text('To', style: TextStyle(color: Colors.grey[600], fontSize: 12)),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          toLocationDisplay ?? 'Select City',
-                                          style: TextStyle(
-                                            color: toLocationDisplay != null ? Colors.black : Colors.grey[400],
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
-                            children: [
-                              _fareOption('Economy', true),
-                              _fareOption('Premium Economy', false),
-                              _fareOption('Business', false),
-                              _fareOption('First', false),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              minimumSize: const Size(double.infinity, 50),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
-                            child: Text('Search Flights', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold)),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 40),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Offers For You', style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 16),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: List.generate(offersTabs.length, (i) => GestureDetector(
-                            onTap: () => setState(() => offersTabIndex = i),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              margin: const EdgeInsets.only(right: 8),
-                              decoration: BoxDecoration(
-                                color: offersTabIndex == i ? Colors.blue[50] : Colors.grey[100],
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: offersTabIndex == i ? Colors.blue : Colors.grey[300]!),
-                              ),
-                              child: Text(
-                                offersTabs[i],
-                                style: TextStyle(
-                                  color: offersTabIndex == i ? Colors.blue : Colors.grey[800],
-                                  fontWeight: offersTabIndex == i ? FontWeight.bold : FontWeight.w500,
-                                ),
+                    const SizedBox(height: 40),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Inspiration for your next trip', style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            height: 250,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: collections.length,
+                              itemBuilder: (context, index) => Padding(
+                                padding: const EdgeInsets.only(right: 16),
+                                child: _collectionCard(collections[index]),
                               ),
                             ),
-                          )),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 250,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: offers.length,
-                          itemBuilder: (context, index) => Container(
-                            width: 300,
-                            margin: const EdgeInsets.only(right: 16),
-                            child: _offerCard(offers[index]),
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 40),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Inspiration for your next trip', style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 250,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: collections.length,
-                          itemBuilder: (context, index) => Padding(
-                            padding: const EdgeInsets.only(right: 16),
-                            child: _collectionCard(collections[index]),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 40),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Quick Links', style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 20),
-                      Wrap(
-                        spacing: 20.0,
-                        runSpacing: 20.0,
-                        children: [
-                          _buildQuickLinkItem('Trip Planner', Icons.calendar_today, hasNew: true, iconColor: Colors.orange, onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const PlaceholderPage(title: 'Trip Planner Page')));
-                          }),
-                          _buildQuickLinkItem('Report Scams', Icons.report_problem, hasNew: true, iconColor: Colors.red, onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => ScamReportPage()));
-                          }),
-                          _buildQuickLinkItem('Travel Expense', Icons.money, hasNew: true, iconColor: Colors.green, onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const PlaceholderPage(title: 'Travel Expense Page')));
-                          }),
-                          _buildQuickLinkItem('Translate', Icons.translate, hasNew: true, iconColor: Colors.purple, onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const PlaceholderPage(title: 'Translate Page')));
-                          }),
-                          _buildQuickLinkItem('Travel Chat', Icons.chat, hasNew: true, iconColor: Colors.teal, onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => EnhancedMessageInput(
-                              onSend: (message, featureType, metadata) async => Future<void>.value(),
-                              currentLocation: '',
-                              userEmail: '',
-                              userAddress: ''
-                            )));
-                          }),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 40),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Quick Links', style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 20),
+                          Wrap(
+                            spacing: 20.0,
+                            runSpacing: 20.0,
+                            children: [
+                                  _buildQuickLinkItem('Trip Planner', Icons.calendar_today, hasNew: true, iconColor: Colors.orange, onTap: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => TripPlanner()));
+                                  }),
+                                  _buildQuickLinkItem('Report Scams', Icons.report_problem, hasNew: true, iconColor: Colors.red, onTap: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => ScamReportPage()));
+                                  }),
+                                  _buildQuickLinkItem('Travel Expense', Icons.money, hasNew: true, iconColor: Colors.green, onTap: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => TravelExpense()));
+                                  }),
+                                  _buildQuickLinkItem('Translate', Icons.translate, hasNew: true, iconColor: Colors.purple, onTap: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => TranslateScreen()));
+                                  }),
+                                  _buildQuickLinkItem('Travel Chat', Icons.chat, hasNew: true, iconColor: Colors.teal, onTap: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => Travelchat()));
+                                  }),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 40),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
