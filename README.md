@@ -11,72 +11,69 @@ https://travelitindeployment-4qd34eysy-raghuram-s-projects.vercel.app
   - Modern glassmorphism design with premium animations
   - Responsive layouts for all screen sizes
   - Custom animations using `flutter_animate` and `animate_do`
-  - Beautiful carousel sliders and staggered grid views
-  - Loading animations with `flutter_spinkit` and `shimmer` effects
-  - Custom fonts including Roboto, OliveVillage, and CalSans
+  - Carousel sliders, staggered grid views, and stylish loading animations
+  - Custom fonts: Roboto, OliveVillage, CalSans
 
-- **Advanced Authentication:**
-  - Firebase Authentication integration
-  - Email/password and phone OTP login
-  - Social login options
+- **Authentication:**
+  - Firebase Authentication (email/password, phone OTP, social login)
   - Secure session management
 
-- **Travel Safety Features:**
+- **Travel Safety:**
   - Real-time location tracking with `geolocator`
-  - Interactive maps using `google_maps_flutter` and `flutter_map`
-  - Voice commands with `speech_to_text`
-  - Text-to-speech capabilities with `flutter_tts`
-  - Multi-language support with `translator`
+  - Interactive maps (`google_maps_flutter`, `flutter_map`)
+  - Scam reporting and travel alerts
+  - Voice commands (`speech_to_text`), text-to-speech (`flutter_tts`)
+  - Multi-language support (`translator`)
 
-- **Travel Planning Tools:**
+- **Travel Planning:**
   - Trip itinerary management
   - Expense tracking
-  - Interactive maps and location services
-  - Weather information
-  - Local transportation options
+  - Weather and local transportation info
 
 - **Smart Features:**
-  - Offline data persistence with `shared_preferences`
-  - Real-time data sync with Firebase
+  - Offline data persistence (`shared_preferences`)
+  - Real-time sync with Firebase
   - Push notifications
-  - Image caching with `cached_network_image`
-  - WebView integration for external content
+  - Image caching (`cached_network_image`)
+  - WebView integration
 
-- **Technical Features:**
-  - State management with `provider` and `get`
-  - Navigation using `go_router`
-  - Environment variable management with `flutter_dotenv`
+- **Technical:**
+  - State management (`provider`, `get`)
+  - Navigation (`go_router`)
+  - Environment variable management (`flutter_dotenv`)
   - Comprehensive error handling
-  - Unit and integration testing setup
+  - Unit, integration, and widget testing
+
+- **Recent Improvements:**
+  - Dynamic user greeting (name from Firestore)
+  - Location badge with formatted address
+  - Address formatting improvements
+  - Quick Links navigation using `Navigator`
+  - Vercel static web deployment
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-
 - Flutter SDK (^3.5.3)
 - Dart SDK
 - Firebase Project
 - Android Studio or VS Code
 
 ### Installation
-
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/travelitinservices/travelitin-services.git
    cd travelitin
    ```
-
 2. **Install dependencies:**
    ```bash
    flutter pub get
    ```
-
 3. **Configure Firebase:**
-   - Add your Firebase configuration files:
-     - `google-services.json` for Android
-     - `GoogleService-Info.plist` for iOS
+   - Add your Firebase config files:
+     - `google-services.json` (Android)
+     - `GoogleService-Info.plist` (iOS)
    - Set up your `.env` file with required API keys
-
 4. **Run the app:**
    ```bash
    flutter run
@@ -86,28 +83,48 @@ https://travelitindeployment-4qd34eysy-raghuram-s-projects.vercel.app
 
 ```
 lib/
-  ├── features/          # Feature-based modules
+  ├── features/
   │   ├── auth/         # Authentication
-  │   ├── travel/       # Travel features
-  │   └── safety/       # Safety features
-  ├── core/             # Core functionality
+  │   ├── explore/      # Explore features
+  │   ├── feed/         # Feed features
+  │   ├── home/         # Home screen features
+  │   ├── landing/      # Landing page features
+  │   ├── language/     # Language support
+  │   ├── location/     # Location services
+  │   ├── map/          # Map features
+  │   ├── revenue/      # Revenue features
+  │   ├── scam_report/  # Scam reporting
+  │   ├── translate/    # Translation features
+  │   └── travel/       # Travel features
+  ├── core/
   │   ├── constants/    # App constants
-  │   ├── services/     # Shared services
-  │   └── utils/        # Utility functions
-  ├── shared/           # Shared widgets and components
-  └── main.dart         # App entry point
+  │   └── services/     # Shared services
+  ├── allfeedback.dart
+  ├── chatwidgets.dart
+  ├── editProf.dart
+  ├── errorHandler.dart
+  ├── firebase_options.dart
+  ├── home_page.dart
+  ├── home_page_new.dart
+  ├── inputfields.dart
+  ├── languages.dart
+  ├── locationService.dart
+  ├── loginScreen.dart
+  ├── main.dart         # App entry point
+  ├── placeholder_page.dart
+  ├── report_scams.dart
+  ├── server.py
+  ├── storage_service.dart
 ```
 
 ## 🔧 Environment Setup
-
-Create a `.env` file in the root directory with the following variables:
+Create a `.env` file in the root directory with:
 ```
 FIREBASE_API_KEY=your_api_key
 MAPS_API_KEY=your_maps_key
 ```
 
 ## 📱 Platform Support
-
 - Android
 - iOS
 - Web
@@ -116,8 +133,6 @@ MAPS_API_KEY=your_maps_key
 - Linux
 
 ## 🧪 Testing
-
-The project includes:
 - Unit tests
 - Integration tests
 - Widget tests
@@ -129,6 +144,7 @@ flutter test
 ```
 
 **Made with Flutter, Firebase, React, and Node.js by Raghuram Sekar**
+
 
 
 
