@@ -116,6 +116,47 @@ class _HomePageState extends State<HomePage> {
   String? fromLocationDisplay;
   String? toLocationDisplay;
 
+  @override
+  void initState() {
+    super.initState();
+    fetchUserName();
+  }
+
+  Future<void> fetchUserName() async {
+    try {
+    final user = FirebaseAuth.instance.currentUser;
+    print('Current user: ${user?.uid ?? "null"}');
+
+    final idToken = await user?.getIdToken();
+    if (idToken == null) {
+      setState(() => userName = 'Not signed in');
+      return;
+    }
+
+    final response = await http.get(
+      Uri.parse('https://username-retrieval-api.onrender.com/api/username'),
+      headers: {
+        'Authorization': 'Bearer $idToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      print('Fetched username data: $data');
+      setState(() {
+        userName = data['username'] ?? "Traveler";
+      });
+    } else {
+      print('Failed to fetch username. Status: ${response.statusCode}');
+      setState(() => userName = 'Unknown');
+    }
+  } catch (e) {
+    print('Error during username fetch: $e');
+    setState(() => userName = 'Error');
+  }
+}
+
+
   void _showLocationSearchSheet(bool isFrom) {
     showModalBottomSheet(
       context: context,
