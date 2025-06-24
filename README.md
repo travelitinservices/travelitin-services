@@ -128,4 +128,8 @@ Run tests using:
 flutter test
 ```
 
-**Made with using Flutter and Firebase by Raghuram Sekar** 
+**Made with Flutter, Firebase, React, and Node.js by Raghuram Sekar**
+
+
+
+
