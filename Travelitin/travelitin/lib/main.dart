@@ -23,13 +23,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:travelitin/core/services/error_handling_service.dart';
 import 'firebase_options.dart';
 import 'package:provider/provider.dart';
-import 'package:travelitin/features/landing/screens/landing_page.dart';
 import 'package:travelitin/editProf.dart';
 
 // AuthChangeNotifier listens for login/logout and refreshes GoRouter
 class AuthChangeNotifier extends ChangeNotifier {
   final FirebaseService _firebaseService = FirebaseService();
-  
+
   AuthChangeNotifier() {
     _firebaseService.authStateChanges.listen((User? user) {
       notifyListeners();
@@ -51,18 +50,18 @@ class ThemeModeNotifier extends ChangeNotifier {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    runApp(
-      MultiProvider(
-        providers: [
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(
+    MultiProvider(
+      providers: [
         ChangeNotifierProvider(create: (_) => AuthChangeNotifier()),
-          ChangeNotifierProvider(create: (_) => ThemeModeNotifier()),
-        ],
-        child: const SafetyGuideApp(),
-      ),
-    );
+        ChangeNotifierProvider(create: (_) => ThemeModeNotifier()),
+      ],
+      child: const SafetyGuideApp(),
+    ),
+  );
 }
 
 class SafetyGuideApp extends StatelessWidget {
@@ -71,14 +70,13 @@ class SafetyGuideApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final router = GoRouter(
-      initialLocation: AppRoutes.landing,
+      initialLocation: AppRoutes.login,
       debugLogDiagnostics: true,
       refreshListenable: AuthChangeNotifier(),
       redirect: (context, state) {
         final user = FirebaseService().currentUser;
         final isLoggedIn = user != null;
         final isOnPublicPage = [
-          AppRoutes.landing,
           AppRoutes.login,
           AppRoutes.signup,
           AppRoutes.forgotPassword,
@@ -95,10 +93,6 @@ class SafetyGuideApp extends StatelessWidget {
         return null;
       },
       routes: [
-        GoRoute(
-          path: AppRoutes.landing,
-          builder: (context, state) => const LandingPage(),
-        ),
         GoRoute(
           path: AppRoutes.login,
           builder: (context, state) => const LoginPage(),
